@@ -1,0 +1,184 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Fitness App Theme - Light Mode */
+    --background: 240 20% 98%;
+    --foreground: 240 10% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 10%;
+
+    /* Primary: Energetic Indigo-Purple */
+    --primary: 243 75% 59%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 250 90% 70%;
+
+    /* Secondary: Soft Purple */
+    --secondary: 250 60% 95%;
+    --secondary-foreground: 243 75% 59%;
+
+    --muted: 240 20% 96%;
+    --muted-foreground: 240 5% 45%;
+
+    /* Accent: Vitality Orange */
+    --accent: 25 95% 53%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Success: Health Green */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 20% 90%;
+    --input: 240 20% 92%;
+    --ring: 243 75% 59%;
+
+    --radius: 1rem;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(243 75% 59%) 0%, hsl(280 80% 60%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(25 95% 53%) 0%, hsl(40 95% 60%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(150 80% 45%) 100%);
+    
+    /* Glassmorphism */
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+    --shadow-glow: 0 0 40px hsla(243, 75%, 59%, 0.3);
+
+    /* Transitions */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Fitness App Theme - Dark Mode */
+    --background: 240 20% 6%;
+    --foreground: 240 10% 95%;
+
+    --card: 240 15% 10%;
+    --card-foreground: 240 10% 95%;
+
+    --popover: 240 15% 10%;
+    --popover-foreground: 240 10% 95%;
+
+    /* Primary: Vibrant Indigo-Purple */
+    --primary: 250 90% 70%;
+    --primary-foreground: 240 20% 6%;
+    --primary-glow: 260 95% 75%;
+
+    /* Secondary: Deep Purple */
+    --secondary: 250 30% 20%;
+    --secondary-foreground: 250 90% 70%;
+
+    --muted: 240 15% 15%;
+    --muted-foreground: 240 5% 60%;
+
+    /* Accent: Bright Orange */
+    --accent: 25 95% 60%;
+    --accent-foreground: 240 20% 6%;
+
+    /* Success: Vibrant Green */
+    --success: 142 76% 45%;
+    --success-foreground: 240 20% 6%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 15% 18%;
+    --input: 240 15% 18%;
+    --ring: 250 90% 70%;
+
+    /* Gradients - More vibrant in dark mode */
+    --gradient-primary: linear-gradient(135deg, hsl(250 90% 70%) 0%, hsl(280 85% 65%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(25 95% 60%) 0%, hsl(40 90% 65%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 45%) 0%, hsl(150 75% 50%) 100%);
+    
+    /* Glassmorphism - Dark mode */
+    --glass-bg: rgba(15, 15, 25, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    
+    /* Shadows - More glow in dark mode */
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+    --shadow-glow: 0 0 60px hsla(250, 90%, 70%, 0.4);
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+  
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+  
+  .gradient-success {
+    background: var(--gradient-success);
+  }
+  
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+}
