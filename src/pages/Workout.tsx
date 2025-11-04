@@ -80,6 +80,9 @@ export default function Workout() {
     }
 
     const token = localStorage.getItem("token");
+    const backend = "https://health4-lmzi.onrender.com";
+    const flaskUrl = "https://workout-plan-app.onrender.com"; // 🔹 replace with your Flask app URL
+
     const requestBody = {
       Weight: parseFloat(formData.Weight),
       Height: parseFloat(formData.Height),
@@ -90,11 +93,20 @@ export default function Workout() {
       AgeGroup: formData.AgeGroup,
     };
 
-    const backend = "https://health4-lmzi.onrender.com";
-
     try {
       setLoading(true);
-      toast.loading("Generating your personalized workout plan...");
+      toast.loading("Warming up AI model...");
+
+      // ✅ Step 1: Warm up the Flask app (ignore if it fails)
+      try {
+        await fetch(flaskUrl);
+      } catch {
+        console.warn("Flask service might still be waking up...");
+      }
+
+      toast.message("Generating your personalized workout plan...");
+
+      // ✅ Step 2: Call your Spring Boot backend
       const res = await fetch(`${backend}/api/workout/generate`, {
         method: "POST",
         headers: {
@@ -105,15 +117,22 @@ export default function Workout() {
       });
 
       const text = await res.text();
+
+      if (!res.ok) {
+        console.error("Backend error:", text);
+        throw new Error("Failed to generate workout plan");
+      }
+
       const data = JSON.parse(text);
       const output = data.workout?.planJson || data.plan || data;
       setPlan(output);
+
       toast.dismiss();
       toast.success("🔥 Your AI-powered workout plan is ready!");
     } catch (err) {
       toast.dismiss();
       console.error(err);
-      toast.error("Failed to generate workout plan.");
+      toast.error("Server is waking up. Please try again in a few seconds.");
     } finally {
       setLoading(false);
     }
@@ -156,9 +175,7 @@ export default function Workout() {
         {/* Form Card */}
         <Card className="glass shadow-lg">
           <CardHeader>
-            <CardTitle className="text-center text-2xl">
-              Body Metrics
-            </CardTitle>
+            <CardTitle className="text-center text-2xl">Body Metrics</CardTitle>
             <CardDescription className="text-center">
               Your personalized workout begins with understanding your body
             </CardDescription>
