@@ -40,6 +40,7 @@ export default function Diet() {
   const [loading, setLoading] = useState(false);
 
   const backend = "https://health4-lmzi.onrender.com";
+  const flaskUrl = "https://diet-plan-app-zihp.onrender.com";
 
   // 🧮 Auto-calculate BMI
   useEffect(() => {
@@ -72,8 +73,15 @@ export default function Diet() {
 
     try {
       setLoading(true);
-      toast.loading("🍏 Generating your AI-powered diet plan...");
+      toast.loading("Warming up AI model...");
 
+      try {
+        await fetch(flaskUrl);
+      } catch {
+        console.warn("Flask service might still be waking up...");
+      }
+
+      toast.message("Generating your personalized diet plan...");
       const res = await fetch(`${backend}/api/diet/generate`, {
         method: "POST",
         headers: {
@@ -111,10 +119,10 @@ export default function Diet() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start py-10 px-4 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-start py-10 px-4 relative overflow-hidden transition-colors bg-white dark:bg-gray-950">
       {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-black to-gray-900 opacity-90" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(180,0,255,0.15),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(140,0,255,0.15),transparent_50%)]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-300 via-pink-100 to-white dark:from-purple-900 dark:via-black dark:to-gray-900 opacity-80" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(180,0,255,0.1),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(140,0,255,0.1),transparent_50%)] dark:bg-[radial-gradient(circle_at_20%_20%,rgba(180,0,255,0.15),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(140,0,255,0.15),transparent_50%)]" />
 
       {/* Header */}
       <motion.div
@@ -123,24 +131,25 @@ export default function Diet() {
         transition={{ duration: 0.6 }}
         className="relative z-10 text-center mb-10"
       >
-        <div className="inline-block bg-gradient-to-r from-purple-500 to-violet-600 p-4 rounded-2xl shadow-purple-500/40 mb-4">
+        <div className="inline-block bg-gradient-to-r from-purple-500 to-violet-600 p-4 rounded-2xl shadow-lg mb-4">
           <Apple className="h-10 w-10 text-white" />
         </div>
-        <h1 className="text-4xl font-extrabold text-white">
-          AI-Generated <span className="text-purple-400">Diet Plan</span>
+        <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white">
+          AI-Generated{" "}
+          <span className="text-purple-600 dark:text-purple-400">Diet Plan</span>
         </h1>
-        <p className="text-gray-400 mt-2">
+        <p className="text-gray-600 dark:text-gray-400 mt-2">
           Smarter nutrition built for your body and lifestyle
         </p>
       </motion.div>
 
       {/* Form */}
-      <Card className="relative z-10 bg-gray-900/50 border border-purple-500/30 shadow-xl rounded-2xl backdrop-blur-lg w-full max-w-5xl">
+      <Card className="relative z-10 bg-white/70 dark:bg-gray-900/50 border border-purple-400/30 dark:border-purple-500/30 shadow-xl rounded-2xl backdrop-blur-md w-full max-w-5xl transition-colors">
         <CardHeader>
-          <CardTitle className="text-purple-400 text-center text-2xl">
+          <CardTitle className="text-purple-700 dark:text-purple-400 text-center text-2xl">
             Health Details
           </CardTitle>
-          <CardDescription className="text-center text-gray-400">
+          <CardDescription className="text-center text-gray-600 dark:text-gray-400">
             Fill your details to generate a personalized diet plan
           </CardDescription>
         </CardHeader>
@@ -154,14 +163,16 @@ export default function Diet() {
             ["Weekly_Exercise_Hours", "number", "e.g., 4.5"],
           ].map(([key, type, placeholder]) => (
             <div key={key}>
-              <Label className="text-gray-300">{key.replace(/_/g, " ")}</Label>
+              <Label className="text-gray-700 dark:text-gray-300">
+                {key.replace(/_/g, " ")}
+              </Label>
               <Input
                 type={type}
                 value={(input as any)[key]}
                 onChange={(e) => handleChange(key, e.target.value)}
                 placeholder={placeholder}
                 disabled={key === "BMI"}
-                className="bg-gray-800/50 border-purple-700/50 text-gray-100"
+                className="bg-white/70 dark:bg-gray-800/50 border border-purple-300 dark:border-purple-700/50 text-gray-900 dark:text-gray-100"
               />
             </div>
           ))}
@@ -175,15 +186,17 @@ export default function Diet() {
             ["Preferred_Cuisine", ["Indian", "Chinese", "Italian", "Mexican"]],
           ].map(([key, values]: [string, string[]]) => (
             <div key={key}>
-              <Label className="text-gray-300">{key.replace(/_/g, " ")}</Label>
+              <Label className="text-gray-700 dark:text-gray-300">
+                {key.replace(/_/g, " ")}
+              </Label>
               <Select
                 value={(input as any)[key]}
                 onValueChange={(v) => handleChange(key, v)}
               >
-                <SelectTrigger className="bg-gray-800/50 border-purple-700/50 text-gray-100">
+                <SelectTrigger className="bg-white/70 dark:bg-gray-800/50 border border-purple-300 dark:border-purple-700/50 text-gray-900 dark:text-gray-100">
                   <SelectValue placeholder={`Select ${key}`} />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-900 text-gray-100 border-purple-800/40">
+                <SelectContent className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 border-purple-300 dark:border-purple-800/40">
                   {values.map((v) => (
                     <SelectItem key={v} value={v}>
                       {v}
@@ -199,7 +212,7 @@ export default function Diet() {
           <Button
             onClick={handleGenerate}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-xl py-2 shadow-lg hover:shadow-purple-400/20 transition-all"
+            className="w-full bg-gradient-to-r from-purple-500 to-violet-600 text-white rounded-xl py-2 shadow-lg hover:shadow-purple-400/40 transition-all"
           >
             <Sparkles className="h-4 w-4 mr-2" />
             {loading ? "Generating..." : "Generate Diet Plan"}
@@ -207,7 +220,7 @@ export default function Diet() {
         </div>
       </Card>
 
-      {/* Plan Display */}
+      {/* Plan Output */}
       {plan && (
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -215,13 +228,13 @@ export default function Diet() {
           transition={{ duration: 0.7 }}
           className="relative z-10 mt-10 w-full max-w-5xl space-y-6"
         >
-          <Card className="bg-gray-900/60 border border-purple-500/40 shadow-lg rounded-2xl">
+          <Card className="bg-white/80 dark:bg-gray-900/60 border border-purple-400/40 dark:border-purple-500/40 shadow-lg rounded-2xl transition-colors">
             <CardHeader>
-              <CardTitle className="text-purple-400 flex items-center gap-2">
+              <CardTitle className="text-purple-700 dark:text-purple-400 flex items-center gap-2">
                 <Utensils className="w-5 h-5" />
                 {plan.diet_type || "Balanced"} Diet
               </CardTitle>
-              <CardDescription className="text-gray-400">
+              <CardDescription className="text-gray-600 dark:text-gray-400">
                 Balanced, AI-curated plan crafted just for you
               </CardDescription>
             </CardHeader>
@@ -232,28 +245,32 @@ export default function Diet() {
               key={i}
               whileHover={{ scale: 1.02 }}
               transition={{ duration: 0.3 }}
-              className="rounded-2xl p-6 border border-purple-800/50 bg-gray-900/40 backdrop-blur-lg shadow-lg"
+              className="rounded-2xl p-6 border border-purple-300 dark:border-purple-800/50 bg-white/70 dark:bg-gray-900/40 backdrop-blur-lg shadow-lg transition-all"
             >
-              <div className="flex items-center justify-between border-b border-purple-800/40 pb-3 mb-4">
-                <h3 className="text-lg font-semibold text-purple-300">{day.day}</h3>
-                <p className="text-sm text-gray-500">🍽 {day.meals.length} meals</p>
+              <div className="flex items-center justify-between border-b border-purple-300 dark:border-purple-800/40 pb-3 mb-4">
+                <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300">
+                  {day.day}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  🍽 {day.meals.length} meals
+                </p>
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
                 {day.meals.map((meal: any, mi: number) => (
                   <div
                     key={mi}
-                    className="p-4 rounded-xl border border-purple-800/50 bg-gray-800/40 hover:bg-gray-800/70 transition-all"
+                    className="p-4 rounded-xl border border-purple-200 dark:border-purple-800/50 bg-white/70 dark:bg-gray-800/40 hover:bg-white dark:hover:bg-gray-800 transition-all"
                   >
-                    <p className="text-purple-300 font-semibold mb-1">
+                    <p className="text-purple-700 dark:text-purple-300 font-semibold mb-1">
                       🍱 {meal.meal}
                     </p>
-                    <p className="text-gray-300 text-sm mb-1">
+                    <p className="text-gray-800 dark:text-gray-200 text-sm mb-1">
                       {meal.food_items.join(", ")}
                     </p>
-                    <p className="text-gray-400 text-xs italic mb-1">
+                    <p className="text-gray-600 dark:text-gray-400 text-xs italic mb-1">
                       💬 {meal.why_to_eat}
                     </p>
-                    <p className="text-gray-400 text-xs">
+                    <p className="text-gray-500 dark:text-gray-400 text-xs">
                       🔥 {meal.estimated_calories} kcal
                     </p>
                   </div>
@@ -263,14 +280,14 @@ export default function Diet() {
           ))}
 
           {plan.tips?.length > 0 && (
-            <Card className="bg-gray-900/50 border border-purple-600/40 shadow-xl rounded-2xl">
+            <Card className="bg-white/70 dark:bg-gray-900/50 border border-purple-300 dark:border-purple-600/40 shadow-xl rounded-2xl transition-colors">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-purple-400">
+                <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-400">
                   <Lightbulb className="h-5 w-5" /> Healthy Tips
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="list-disc pl-6 space-y-2 text-gray-300">
+                <ul className="list-disc pl-6 space-y-2 text-gray-800 dark:text-gray-300">
                   {plan.tips.map((tip: string, idx: number) => (
                     <li key={idx}>{tip}</li>
                   ))}
