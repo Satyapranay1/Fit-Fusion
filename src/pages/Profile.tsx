@@ -1,13 +1,23 @@
+"use client";
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Mail, Lock, Save } from "lucide-react";
+import { User, Mail, Lock, Save, LogOut, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 export default function Profile() {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -19,15 +29,22 @@ export default function Profile() {
     confirmNewPassword: "",
   });
 
+  // 👁️ password visibility toggles
+  const [showPassword, setShowPassword] = useState({
+    old: false,
+    new: false,
+    confirm: false,
+  });
+
   const [loading, setLoading] = useState(false);
   const backend = "https://health4-lmzi.onrender.com";
 
-  // ✅ Fetch profile details from backend
   useEffect(() => {
     const fetchProfile = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
         toast.error("Please log in to access your profile.");
+        navigate("/auth");
         return;
       }
 
@@ -39,8 +56,7 @@ export default function Profile() {
         if (!res.ok) throw new Error("Failed to load profile");
         const data = await res.json();
         setFormData({ name: data.name, email: data.email });
-      } catch (err) {
-        console.error(err);
+      } catch {
         toast.error("Unable to fetch user details");
       }
     };
@@ -48,18 +64,12 @@ export default function Profile() {
     fetchProfile();
   }, []);
 
-  // ✅ Update Profile (name & email)
   const handleSaveProfile = async () => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("Please log in first!");
-      return;
-    }
+    if (!token) return toast.error("Please log in first!");
 
-    if (!formData.name || !formData.email) {
-      toast.error("Name and Email are required!");
-      return;
-    }
+    if (!formData.name || !formData.email)
+      return toast.error("Name and Email are required!");
 
     setLoading(true);
     try {
@@ -75,36 +85,26 @@ export default function Profile() {
       if (!res.ok) throw new Error("Failed to update profile");
       toast.success("Profile updated successfully!");
     } catch (err: any) {
-      toast.error(err.message || "Error updating profile");
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Change Password
   const handleChangePassword = async () => {
     const { oldPassword, newPassword, confirmNewPassword } = passwords;
     const token = localStorage.getItem("token");
 
-    if (!token) {
-      toast.error("Please log in first!");
-      return;
-    }
+    if (!token) return toast.error("Please log in first!");
 
-    if (!oldPassword || !newPassword || !confirmNewPassword) {
-      toast.error("All password fields are required!");
-      return;
-    }
+    if (!oldPassword || !newPassword || !confirmNewPassword)
+      return toast.error("All password fields are required!");
 
-    if (newPassword.length < 8) {
-      toast.error("New password must be at least 8 characters long!");
-      return;
-    }
+    if (newPassword.length < 8)
+      return toast.error("New password must be at least 8 characters long!");
 
-    if (newPassword !== confirmNewPassword) {
-      toast.error("New passwords do not match!");
-      return;
-    }
+    if (newPassword !== confirmNewPassword)
+      return toast.error("New passwords do not match!");
 
     setLoading(true);
     try {
@@ -121,16 +121,39 @@ export default function Profile() {
       if (!res.ok) throw new Error(data.message || "Password change failed");
 
       toast.success("Password changed successfully!");
-      setPasswords({ oldPassword: "", newPassword: "", confirmNewPassword: "" });
+      setPasswords({
+        oldPassword: "",
+        newPassword: "",
+        confirmNewPassword: "",
+      });
     } catch (err: any) {
-      toast.error(err.message || "Error changing password");
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
   };
 
+  // 🔥 Logout Handler
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    toast.success("Logged out successfully!");
+    navigate("/auth");
+  };
+
   return (
     <div className="container mx-auto p-6 max-w-2xl space-y-6">
+      {/* Logout Button */}
+      <div className="flex justify-end">
+        <Button
+          variant="destructive"
+          className="flex items-center gap-2"
+          onClick={handleLogout}
+        >
+          <LogOut className="h-4 w-4" />
+          Logout
+        </Button>
+      </div>
+
       {/* Header */}
       <div className="text-center space-y-4">
         <Avatar className="h-24 w-24 mx-auto ring-4 ring-primary/20">
@@ -141,52 +164,51 @@ export default function Profile() {
         </Avatar>
         <div>
           <h1 className="text-4xl font-bold">Profile Settings</h1>
-          <p className="text-muted-foreground text-lg">
-            Manage your account and password
-          </p>
+          <p className="text-muted-foreground text-lg">Manage your account</p>
         </div>
       </div>
 
-      {/* Profile Form */}
-      <Card className="shadow-lg border border-primary/10">
+      {/* Profile Card */}
+      <Card className="shadow-lg border">
         <CardHeader>
           <CardTitle>Personal Information</CardTitle>
           <CardDescription>Update your profile details</CardDescription>
         </CardHeader>
+
         <CardContent className="space-y-6">
           {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="name" className="flex items-center gap-2">
+            <Label className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Full Name
             </Label>
             <Input
-              id="name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Enter your name"
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
             />
           </div>
 
           {/* Email */}
           <div className="space-y-2">
-            <Label htmlFor="email" className="flex items-center gap-2">
+            <Label className="flex items-center gap-2">
               <Mail className="h-4 w-4" />
               Email Address
             </Label>
             <Input
-              id="email"
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              placeholder="Enter your email"
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
             />
           </div>
 
           <Button
             onClick={handleSaveProfile}
             disabled={loading}
-            className="w-full gradient-primary text-white shadow-glow"
+            className="w-full gradient-primary text-white"
           >
             <Save className="mr-2 h-4 w-4" />
             {loading ? "Saving..." : "Save Changes"}
@@ -194,50 +216,87 @@ export default function Profile() {
         </CardContent>
       </Card>
 
-      {/* Password Change Form */}
-      <Card className="shadow-lg border border-primary/10">
+      {/* Change Password */}
+      <Card className="shadow-lg border">
         <CardHeader>
           <CardTitle>Change Password</CardTitle>
-          <CardDescription>Update your account password securely</CardDescription>
+          <CardDescription>Update your account password</CardDescription>
         </CardHeader>
+
         <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="oldPassword">Old Password</Label>
+          {/* Old Password */}
+          <div className="space-y-2 relative">
+            <Label>Old Password</Label>
             <Input
-              id="oldPassword"
-              type="password"
-              placeholder="Enter your old password"
+              type={showPassword.old ? "text" : "password"}
               value={passwords.oldPassword}
-              onChange={(e) => setPasswords({ ...passwords, oldPassword: e.target.value })}
+              onChange={(e) =>
+                setPasswords({ ...passwords, oldPassword: e.target.value })
+              }
             />
+            <button
+              type="button"
+              className="absolute right-3 top-9"
+              onClick={() =>
+                setShowPassword({ ...showPassword, old: !showPassword.old })
+              }
+            >
+              {showPassword.old ? <EyeOff /> : <Eye />}
+            </button>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="newPassword">New Password</Label>
+          {/* New Password */}
+          <div className="space-y-2 relative">
+            <Label>New Password</Label>
             <Input
-              id="newPassword"
-              type="password"
-              placeholder="Enter new password"
+              type={showPassword.new ? "text" : "password"}
               value={passwords.newPassword}
-              onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
+              onChange={(e) =>
+                setPasswords({ ...passwords, newPassword: e.target.value })
+              }
             />
+            <button
+              type="button"
+              className="absolute right-3 top-9"
+              onClick={() =>
+                setShowPassword({ ...showPassword, new: !showPassword.new })
+              }
+            >
+              {showPassword.new ? <EyeOff /> : <Eye />}
+            </button>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="confirmNewPassword">Confirm New Password</Label>
+          {/* Confirm New Password */}
+          <div className="space-y-2 relative">
+            <Label>Confirm New Password</Label>
             <Input
-              id="confirmNewPassword"
-              type="password"
-              placeholder="Confirm new password"
+              type={showPassword.confirm ? "text" : "password"}
               value={passwords.confirmNewPassword}
-              onChange={(e) => setPasswords({ ...passwords, confirmNewPassword: e.target.value })}
+              onChange={(e) =>
+                setPasswords({
+                  ...passwords,
+                  confirmNewPassword: e.target.value,
+                })
+              }
             />
+            <button
+              type="button"
+              className="absolute right-3 top-9"
+              onClick={() =>
+                setShowPassword({
+                  ...showPassword,
+                  confirm: !showPassword.confirm,
+                })
+              }
+            >
+              {showPassword.confirm ? <EyeOff /> : <Eye />}
+            </button>
           </div>
 
           <Button
             onClick={handleChangePassword}
             disabled={loading}
-            className="w-full gradient-primary text-white shadow-glow"
+            className="w-full gradient-primary text-white"
           >
             <Lock className="mr-2 h-4 w-4" />
             {loading ? "Changing..." : "Change Password"}
