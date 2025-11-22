@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Dumbbell, Mail, Lock, User, AlertCircle } from "lucide-react";
+import { Dumbbell, Mail, Lock, User, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,10 +19,13 @@ const backend = "https://health4-lmzi.onrender.com";
 export default function Auth() {
   const navigate = useNavigate();
   const [isSignup, setIsSignup] = useState(false);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [errors, setErrors] = useState<{ email?: string; password?: string; name?: string }>({});
 
@@ -66,8 +69,8 @@ export default function Auth() {
       }
 
       if (!response.ok) {
-        // handle backend specific messages
         let message = "Something went wrong";
+
         if (data.error?.toLowerCase().includes("email")) {
           message = "Email is already registered.";
         } else if (data.message?.toLowerCase().includes("invalid")) {
@@ -128,6 +131,7 @@ export default function Auth() {
           >
             <Dumbbell className="h-12 w-12 text-white" />
           </motion.div>
+
           <h1 className="text-4xl font-bold mb-2">
             {isSignup ? (
               <>
@@ -145,6 +149,7 @@ export default function Auth() {
               </>
             )}
           </h1>
+
           <p className="text-muted-foreground">
             {isSignup
               ? "Create your account to start your journey"
@@ -163,8 +168,11 @@ export default function Auth() {
                 : "Sign in or create your account"}
             </CardDescription>
           </CardHeader>
+
           <CardContent>
             <form onSubmit={handleAuth} className="space-y-4">
+
+              {/* NAME FIELD */}
               {isSignup && (
                 <div className="space-y-2">
                   <Label htmlFor="name">Name</Label>
@@ -187,6 +195,7 @@ export default function Auth() {
                 </div>
               )}
 
+              {/* EMAIL FIELD */}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
@@ -207,19 +216,31 @@ export default function Auth() {
                 )}
               </div>
 
+              {/* PASSWORD FIELD WITH SHOW/HIDE */}
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
+
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+
                   <Input
                     id="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 pr-10"
                   />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
+
                 {errors.password && (
                   <p className="text-red-500 text-xs flex items-center gap-1 mt-1">
                     <AlertCircle size={12} /> {errors.password}
@@ -269,10 +290,6 @@ export default function Auth() {
             </p>
           </CardContent>
         </Card>
-
-        <p className="text-center text-sm text-muted-foreground mt-4">
-          By continuing, you agree to our Terms of Service and Privacy Policy
-        </p>
       </motion.div>
     </div>
   );
